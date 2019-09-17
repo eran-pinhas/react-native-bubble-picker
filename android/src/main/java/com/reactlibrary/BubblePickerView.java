@@ -8,7 +8,6 @@ import android.view.ViewManager;
 
 import java.util.ArrayList;
 import java.util.List;
-import android.support.annotation.Nullable;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -28,7 +27,11 @@ import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.bridge.ReactApplicationContext;
 
+
 public class BubblePickerView extends SimpleViewManager<BubblePicker> {
+    float FONT_RATIO = 1.5f;
+    float RADIUS_RATIO = 0.45f;
+
     class Item {
         String id;
         String text;
@@ -62,6 +65,8 @@ public class BubblePickerView extends SimpleViewManager<BubblePicker> {
     BubblePicker bubblePicker;
     BubblePickerAdapter bubblePickerAdapter;
     List<Item> items = new ArrayList<Item>();
+    float fontSize = 10 * FONT_RATIO;
+    float radius = 30 * RADIUS_RATIO;
 
     public static final String REACT_CLASS = "BubblePickerView";
 
@@ -70,18 +75,28 @@ public class BubblePickerView extends SimpleViewManager<BubblePicker> {
         return REACT_CLASS;
     }
 
-//    @ReactProp(name = "onPress")
-//    public void setOnPress(BubblePicker view, @Nullable Callback cb) {
-//        onPress = cb;
-//    }
-
     @ReactProp(name = "items")
-    public void setSrc(BubblePicker view, @Nullable ReadableArray jsItems) {
+    public void setSrc(BubblePicker view, ReadableArray jsItems) {
         items.clear();
         for (int i = 0; i < jsItems.size(); i++) {
             ReadableMap jsItem = jsItems.getMap(i);
             items.add(new Item(jsItem));
         }
+
+        bubblePicker.setAdapter(bubblePickerAdapter);
+    }
+
+    @ReactProp(name = "radius", defaultInt = 30)
+    public void setRadius(BubblePicker view, int radius){
+        bubblePicker.setBubbleSize((int)(radius * RADIUS_RATIO)); // equalizing sizes from ios to android
+        this.radius = radius;
+    }
+
+    @ReactProp(name = "fontSize", defaultFloat = 10f)
+    public void setFontSize(BubblePicker view, float fontSize){
+        this.fontSize = fontSize * FONT_RATIO;  // equalizing sizes from ios to android
+
+        bubblePicker.setAdapter(bubblePickerAdapter);
     }
 
     @Override
@@ -89,6 +104,7 @@ public class BubblePickerView extends SimpleViewManager<BubblePicker> {
         bubblePicker = new BubblePicker(context);
         bubblePicker.setCenterImmediately(true);
         bubblePicker.setZOrderOnTop(false);
+        final float fontSize = this.fontSize;
 
         bubblePickerAdapter = new BubblePickerAdapter() {
             @Override
@@ -110,6 +126,7 @@ public class BubblePickerView extends SimpleViewManager<BubblePicker> {
                 item.setColor(Color.parseColor(srcItem.color));
                 item.setTextColor(Color.parseColor(srcItem.textColor));
                 item.setCustomData(srcItem);
+                item.setTextSize(fontSize);
                 return item;
             }
         };

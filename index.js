@@ -1,12 +1,19 @@
-
-import React from 'react'
-import { NativeModules, requireNativeComponent, DeviceEventEmitter } from 'react-native';
+import React from "react";
+import {
+  NativeModules,
+  requireNativeComponent,
+  DeviceEventEmitter,
+  Platform
+} from "react-native";
 // import BubblePicke from './BubblePickerView';
 const { RNBubblePicker } = NativeModules;
 
-export default {...RNBubblePicker} ;
+export default { ...RNBubblePicker };
 
-const BubblePickerView = requireNativeComponent('BubblePickerView',null)
+const BubblePickerView = Platform.select({
+  android: requireNativeComponent("BubblePickerView", null),
+  ios: requireNativeComponent("RNBubblePicker", null)
+});
 
 export class BubblePicker extends React.Component {
   constructor(props) {
@@ -15,9 +22,14 @@ export class BubblePicker extends React.Component {
   }
 
   componentDidMount() {
-    this.subscription = DeviceEventEmitter.addListener('onSelected', this._onChange);
-    this.subscription2 = DeviceEventEmitter.addListener('onDeselected', this._onChange);
-    
+    this.subscription = DeviceEventEmitter.addListener(
+      "onSelected",
+      this._onChange
+    );
+    this.subscription2 = DeviceEventEmitter.addListener(
+      "onDeselected",
+      this._onChange
+    );
   }
   componentWillUnmount() {
     this.subscription.remove();
@@ -28,9 +40,18 @@ export class BubblePicker extends React.Component {
     if (!this.props.onPress) {
       return;
     }
-    this.props.onPress(event);
+    Platform.select({
+      ios: () => this.props.onPress(event.nativeEvent),
+      android: () => this.props.onPress(event)
+    })();
   }
   render() {
-    return <BubblePickerView {...this.props} onSelected={this._onChange} onDeselected={this._onChange} />;
+    return (
+      <BubblePickerView
+        {...this.props}
+        onSelected={this._onChange}
+        onDeselected={this._onChange}
+      />
+    );
   }
 }
