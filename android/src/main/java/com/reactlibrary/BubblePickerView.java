@@ -65,7 +65,7 @@ public class BubblePickerView extends SimpleViewManager<BubblePicker> {
     BubblePicker bubblePicker;
     BubblePickerAdapter bubblePickerAdapter;
     List<Item> items = new ArrayList<Item>();
-    float fontSize = 10 * FONT_RATIO;
+    float fontSize = 25 * FONT_RATIO;
     float radius = 30 * RADIUS_RATIO;
 
     public static final String REACT_CLASS = "BubblePickerView";
@@ -88,14 +88,14 @@ public class BubblePickerView extends SimpleViewManager<BubblePicker> {
 
     @ReactProp(name = "radius", defaultInt = 30)
     public void setRadius(BubblePicker view, int radius){
-        bubblePicker.setBubbleSize((int)(radius * RADIUS_RATIO)); // equalizing sizes from ios to android
         this.radius = radius;
+        bubblePicker.setBubbleSize((int)(radius * RADIUS_RATIO)); // equalizing sizes from ios to android
+        bubblePicker.setAdapter(bubblePickerAdapter);
     }
 
     @ReactProp(name = "fontSize", defaultFloat = 10f)
     public void setFontSize(BubblePicker view, float fontSize){
         this.fontSize = fontSize * FONT_RATIO;  // equalizing sizes from ios to android
-
         bubblePicker.setAdapter(bubblePickerAdapter);
     }
 
